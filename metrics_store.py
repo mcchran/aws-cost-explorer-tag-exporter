@@ -35,4 +35,3 @@ class DictMetricsStore(AbstractMetricsStore):
             for tag in self.store[metric]:
                 for tag_value in self.store[metric][tag]:
                     yield metric, tag, tag_value, self.store[metric][tag][tag_value]
-
