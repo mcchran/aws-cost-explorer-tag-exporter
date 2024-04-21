@@ -1,7 +1,7 @@
 from aws_cost_explorer import AwsCostExplorer
 from prometheus_client import generate_latest
 from flask import Flask, Response
-
+from metrics_store import DictMetricsStore
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from gauge_store import GaugeStore
@@ -14,8 +14,6 @@ import os
 app = Flask(__name__)
 
 mode = os.environ.get("MODE", "cost_provisioning")
-tags_discovery_url = os.environ.get("TAGS_DISCOVERY_URL", "http://localhost:3000")
-tags_discovery_url = os.path.join(tags_discovery_url, "service_tags")
 
 @retry(
         attempts=10,
@@ -27,17 +25,23 @@ def get_tags_for_services():
 
 if mode == "cost_provisioning":
     
+    tags_discovery_url = os.environ.get("TAGS_DISCOVERY_URL", "http://localhost:3000")
+    tags_discovery_url = os.path.join(tags_discovery_url, "service_tags")
     # let's perform a post request to the /service_tags endpoint to get the services with tags
     services_with_tags = get_tags_for_services()
     
     gauge_store = GaugeStore(["team", "service", "aws_service"])
+    
+    persistent_gauge_store = DictMetricsStore()
     cost_explorer = AwsCostExplorer(
-        gauge_store,
+        persistent_gauge_store,
         services_with_tags,
     )
 
     @app.route("/metrics/")
     def metrics():
+        for metric, tag_map, gauge in persistent_gauge_store.list_gauges():
+            gauge_store.gauge(metric, tag_map, gauge)
         return Response(
             generate_latest(), mimetype="text/plain; version=0.0.4; charset=utf-8"
         )

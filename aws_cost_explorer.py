@@ -82,4 +82,5 @@ class AwsCostExplorer(AbstractCostExplorer):
                     extended_tag_map,
                     resp["ResultsByTime"][0]["Total"]["BlendedCost"]["Amount"],
                 )
-        print(f"Total number of requests: {count}")
+        self.metrics_store.persist()
+

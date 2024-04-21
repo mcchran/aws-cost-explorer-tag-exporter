@@ -1,11 +1,13 @@
 from collections import defaultdict
 from abc import ABC, abstractmethod
+from hashlib import md5
 
+import json
 
 class AbstractMetricsStore(ABC):
     
     @abstractmethod
-    def add_metric(self, metric, tag, value, gauge):
+    def gauge(self, metric, tag_map, gauge):
         """Add a new metrics to the store.
 
         Args:
@@ -14,24 +16,62 @@ class AbstractMetricsStore(ABC):
             metric (string): the metric to add
         """
         pass
+    
+    @abstractmethod
+    def list_gauges(self):
+        """List all the gauges in the store.
+
+        Returns:
+            list: a list of tuples containing the metric, tag_map and gauge
+        """
+        pass
 
 
 class DictMetricsStore(AbstractMetricsStore):
-    def __init__(self) -> None:
-        self.store = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+    def __init__(self, persistent_file=None):
+        persistent_file = persistent_file or "metrics_store.json"
+        self.gauge_store = defaultdict(defaultdict)
+        # let's load the data from the file
+        try:
+            with open(persistent_file, "r") as f:
+                self.gauge_store = json.loads((f.read()))
+        except FileNotFoundError:
+            print("File not found, creating a new one")
+        except Exception as e:
+            print(f"An error occurred while reading the file: {e}")
         
     @classmethod
     def format_string(cls, string):
         return string.lower().replace(" ", "_").replace("-", "_")
+    
+    @staticmethod
+    def get_hash(tag_map):
+        # let's concatenate all tags and values and hash them
+        concatenated = ""
+        for tag, value in tag_map.items():
+            concatenated += f"{tag}{value}"
+        hashed = md5(concatenated.encode("utf-8"))
+        return hashed.digest()
 
-    def add_metric(self, tag, value, metric, gauge):
-        tag = self.format_string(tag)
+    def gauge(self, metric, tag_map, gauge):
         metric = self.format_string(metric)
-        value = self.format_string(value)
-        self.store[metric][tag][value] = gauge
+        self.gauge_store[metric][self.get_hash(tag_map)] = (tag_map, gauge)
         
-    def list_metrics(self):
-        for metric in self.store:
-            for tag in self.store[metric]:
-                for tag_value in self.store[metric][tag]:
-                    yield metric, tag, tag_value, self.store[metric][tag][tag_value]
+    def list_gauges(self):
+        for metric in self.gauge_store:
+            for (tag_map, gauge) in self.gauge_store[metric].values():
+                yield metric, tag_map, gauge
+                
+    def persist(self):
+        # should persist the data to a file
+        with open("metrics_store.json", "w") as f:
+            # let's decode all keys to strings
+            for key in self.gauge_store.keys():
+                self.gauge_store[key] = {
+                    str(k): v for k, v in self.gauge_store[key].items()}
+            f.write(json.dumps(self.gauge_store))
+            # let's encode back
+            for key in self.gauge_store.keys():
+                self.gauge_store[key] = {
+                    bytes(k, "utf-8"): v for k, v in self.gauge_store[key].items()}
+            
