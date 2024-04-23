@@ -15,7 +15,7 @@ def test_get_resources_with_tags(mock_boto3_client):
         {"ResourceTagMappingList": [{"ResourceARN": "arn1", "Tags": [{"Key": "key1", "Value": "value1"}]}]},
         {"ResourceTagMappingList": [{"ResourceARN": "arn2", "Tags": [{"Key": "key2", "Value": "value2"}]}]}
     ]
-    mock_boto3_client.return_value.get_paginator.return_value = MagicMock(paginate=mock_get_resources)
+    mock_boto3_client.return_value.get_paginator.return_value = mock_get_resources
 
     exporter = AWSServiceTagExporter(["tag1", "tag2"])
     resources_with_tags = exporter.get_resources_with_tags()
@@ -49,7 +49,8 @@ def test_get_services_for_tags(mock_boto3_client):
         {"ResourceTagMappingList": [{"ResourceARN": "arn:aws:ec2:resource1", "Tags": [{"Key": "tag1", "Value": "value1"}]}]},
         {"ResourceTagMappingList": [{"ResourceARN": "arn:aws:rds:resource2", "Tags": [{"Key": "tag2", "Value": "value2"}]}]}
     ]
-    mock_boto3_client.return_value.get_paginator.return_value = MagicMock(paginate=mock_get_resources)
+    
+    mock_boto3_client.return_value.get_paginator.return_value = mock_get_resources
 
     exporter = AWSServiceTagExporter(["tag1", "tag2"])
     services_with_tags = exporter.get_services_for_tags()
