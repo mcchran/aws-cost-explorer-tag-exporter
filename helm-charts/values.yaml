@@ -1,0 +1,21 @@
+image: <image:version>
+args:
+  - --host
+  - 0.0.0.0
+svcAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "5000"
+  prometheus.io/scheme: "http"
+  prometheus.io/path: "/metrics"
+
+persistence:
+  accessMode: ReadWriteOnce
+  size: 1Gi  # Adjust the size as needed
+  storageClass: ebs-sc   # Adjust the storage class as needed
+
+podAnnotations:
+env:
+
+
+costExporterRoleArn: <the arn of the role of the account that this is going to scrape data from?
+tagDiscoveryRoleArn: <the arn of the role to fetch tags from the AWS account>
