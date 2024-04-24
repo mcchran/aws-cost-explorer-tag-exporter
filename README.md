@@ -35,6 +35,28 @@ The application requires the following configuration options:
 
 ## Usage
 
+### Local testing:
+
+Don't worry, we have back you, we have a neat makefile under src repo:
+Run:
+```
+make test
+```
+... to run the tests ...
+
+Since we have two services running we can use two terminals. We can do by using only one ... but let's keep it simple:
+
+In the first terminal run the following command to list the related tags:
+```
+run-tag-exporter
+```
+
+
+In the second one run the following command to get the actual metrics:
+```
+run-cost-exporter
+```
+
 ### Cost Exploration
 - Access the `/metrics/` endpoint to retrieve daily costs in Prometheus format.
 - Trigger cost updates manually by accessing the `/trigger` endpoint.

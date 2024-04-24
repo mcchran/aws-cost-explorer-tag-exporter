@@ -1,6 +1,0 @@
-MODE=cost_provisioning
-PERSISTENT_FILE=path/to/your/metrics_store.json
-TAGS_DISCOVERY_URL=http://your-tags-discovery-url.com
-TAGS_LIST=tag1,tag2,tag3
-SCHEDULE_MINUTE=30
-SCHEDULE_HOUR=10
