@@ -38,6 +38,12 @@ spec:
         env:
         - name: MODE
           value: tag_procisioning
+        {{- if .Values.tagDiscoveryEnv }}
+          {{- range $key, $value := .Values.tagDiscoveryEnv }}
+          - name: {{ $key | quote }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- end }}
         {{- if .Values.env }}
           {{- range $key, $value := .Values.env }}
           - name: {{ $key | quote }}

@@ -16,6 +16,22 @@ persistence:
 podAnnotations:
 env:
 
-
 costExporterRoleArn: <the arn of the role of the account that this is going to scrape data from?
 tagDiscoveryRoleArn: <the arn of the role to fetch tags from the AWS account>
+
+costExporterEnv:
+  - key: PERSISTENT_FILE
+  - value: /data/cost_metrics.json
+  - key: SCHEDULE_MINUTE
+    value: 30
+  - key: SCHEDULE_HOUR
+    value: 23
+
+tagDiscoveryEnv:
+  - key: SCHEDULE_MINUTE
+    value: 15
+  - key: SCHEDULE_HOUR
+    value: 23
+  - key: TAGS_LIST
+    value: tag1,tag2,tag3
+  

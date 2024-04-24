@@ -40,6 +40,12 @@ spec:
           value: http://aws-cost-exporter-tags-discovery:5000
         - name: MODE
           value: cost_provisioning
+        {{- if .Values.costExporterEnv }}
+          {{- range $key, $value := .Values.costExporterEnv }}
+          - name: {{ $key | quote }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- end }}
         {{- if .Values.env }}
           {{- range $key, $value := .Values.env }}
           - name: {{ $key | quote }}
