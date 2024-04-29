@@ -4,6 +4,8 @@
 
 This application is designed to provide cost exploration and service tag exporting functionalities for AWS resources. It allows users to retrieve daily costs for specific AWS services based on provided tags and export service tags for various AWS services.
 
+![Architectural overview](aws_cost_exporter.png)
+
 ## Features
 
 ### Cost Exploration
